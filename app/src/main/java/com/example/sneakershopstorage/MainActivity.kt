@@ -2,6 +2,7 @@ package com.example.sneakershopstorage
 
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -10,17 +11,14 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.tooling.preview.Preview
 import com.example.sneakershopstorage.ui.theme.SneakerShopStorageTheme
-import com.example.sneakershopstorage.utils.CryptoUtils
+import com.example.sneakershopstorage.utils.CryptoManager
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.WriterException
 import com.google.zxing.common.BitMatrix
@@ -28,41 +26,39 @@ import com.google.zxing.qrcode.QRCodeWriter
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
 
-object KeyAliases {
-    const val EMPLOYEE_ALIAS = "employee_key_alias"
-}
 
 class MainActivity : ComponentActivity() {
+    private val cryptoManager = CryptoManager(this)
+
     private val scanLauncher = registerForActivityResult(ScanContract()) { result ->
         if(result.contents == null) {
             Toast.makeText(this, "Result is null", Toast.LENGTH_SHORT).show()
         } else {
-            Toast.makeText(this, "Result: ${result.contents}", Toast.LENGTH_SHORT).show()
+            val cipherText = result.contents
+            Log.i("Scan", result.contents)
+            val decryptedText = cryptoManager.decrypt(cipherText)
+            decryptedText.let {
+                Toast.makeText(this, it, Toast.LENGTH_SHORT).show()
+            }
         }
     }
-
-    private val cryptoUtils = CryptoUtils()
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             SneakerShopStorageTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize()
                 ) {
                     Column {
-                        cryptoUtils.generateSecretKey(KeyAliases.EMPLOYEE_ALIAS)
-                        val encryptedText = cryptoUtils.encrypt(KeyAliases.EMPLOYEE_ALIAS,"some string data that should be encrypted")
+                        val encryptedText = cryptoManager.encrypt("some string data that should be encrypted")
 
                         Row(
                             modifier = Modifier
                                 .weight(1f)
                         ) {
-                            encryptedText?.let {
-                                QRCodeScreen(it)
-                            }
+                            QRCodeScreen(encryptedText)
                         }
 
                         Row (
