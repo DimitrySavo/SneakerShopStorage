@@ -8,6 +8,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -19,12 +20,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.sneakershopstorage.ui.theme.SneakerShopStorageTheme
+import com.example.sneakershopstorage.utils.CryptoUtils
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.WriterException
 import com.google.zxing.common.BitMatrix
 import com.google.zxing.qrcode.QRCodeWriter
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
+
+object KeyAliases {
+    const val EMPLOYEE_ALIAS = "employee_key_alias"
+}
 
 class MainActivity : ComponentActivity() {
     private val scanLauncher = registerForActivityResult(ScanContract()) { result ->
@@ -35,6 +41,9 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    private val cryptoUtils = CryptoUtils()
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -44,16 +53,31 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize()
                 ) {
                     Column {
-                        QRCodeScreen("some string data that should be encrypted")
+                        cryptoUtils.generateSecretKey(KeyAliases.EMPLOYEE_ALIAS)
+                        val encryptedText = cryptoUtils.encrypt(KeyAliases.EMPLOYEE_ALIAS,"some string data that should be encrypted")
 
-                        Button(
-                            onClick = {
-                                scan()
-                            }
+                        Row(
+                            modifier = Modifier
+                                .weight(1f)
                         ) {
-                            Text(
-                                text = "Scan code"
-                            )
+                            encryptedText?.let {
+                                QRCodeScreen(it)
+                            }
+                        }
+
+                        Row (
+                            modifier = Modifier
+                                .weight(1f)
+                        ) {
+                            Button(
+                                onClick = {
+                                    scan()
+                                }
+                            ) {
+                                Text(
+                                    text = "Scan code"
+                                )
+                            }
                         }
                     }
                 }
