@@ -31,11 +31,9 @@ class CryptoManager(private val context: Context) {
         val storedKeyBase64 = prefs.getString(PREFS_KEY, null)
 
         return if (storedKeyBase64 != null) {
-            // Уже есть сохранённый ключ
             val decodedKey = Base64.decode(storedKeyBase64, Base64.DEFAULT)
             SecretKeySpec(decodedKey, 0, decodedKey.size, "AES")
         } else {
-            // Генерируем новый ключ
             val keyGenerator = KeyGenerator.getInstance("AES")
             keyGenerator.init(AES_KEY_SIZE)
             val newKey = keyGenerator.generateKey()
@@ -55,8 +53,7 @@ class CryptoManager(private val context: Context) {
         val secretKey = getOrCreateKey()
         val cipher = Cipher.getInstance(AES_MODE)
 
-        // Генерируем случайный IV для GCM
-        val iv = ByteArray(12) // Рекомендуемый размер IV для GCM - 12 байт
+        val iv = ByteArray(12)
         SecureRandom().nextBytes(iv)
 
         val gcmSpec = GCMParameterSpec(GCM_TAG_LENGTH, iv)
@@ -64,7 +61,6 @@ class CryptoManager(private val context: Context) {
 
         val cipherText = cipher.doFinal(plainText.toByteArray(Charset.forName("UTF-8")))
 
-        // Объединяем IV и шифротекст: для расшифровки нам нужен тот же IV
         val combined = iv + cipherText
 
         return Base64.encodeToString(combined, Base64.DEFAULT)
@@ -78,7 +74,6 @@ class CryptoManager(private val context: Context) {
         val secretKey = getOrCreateKey()
         val encryptedBytes = Base64.decode(encryptedBase64, Base64.DEFAULT)
 
-        // Извлекаем IV
         val ivSize = 12
         val iv = encryptedBytes.copyOfRange(0, ivSize)
         val cipherBytes = encryptedBytes.copyOfRange(ivSize, encryptedBytes.size)
