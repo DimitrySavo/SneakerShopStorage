@@ -53,6 +53,12 @@ dependencies {
     implementation(libs.core)
     implementation(libs.zxing.android.embedded)
 
+    // navigation
+    implementation(libs.androidx.navigation.compose)
+
+    //gson serialization
+    implementation(libs.converter.gson)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
