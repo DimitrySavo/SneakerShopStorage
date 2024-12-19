@@ -41,7 +41,6 @@ class CryptoManager {
         val ivSize = 12
         val iv = encryptedBytes.copyOfRange(0, ivSize)
         val cipherBytes = encryptedBytes.copyOfRange(ivSize, encryptedBytes.size)
-
         val cipher = Cipher.getInstance(AES_MODE)
         val gcmSpec = GCMParameterSpec(GCM_TAG_LENGTH, iv)
         cipher.init(Cipher.DECRYPT_MODE, secretKey, gcmSpec)

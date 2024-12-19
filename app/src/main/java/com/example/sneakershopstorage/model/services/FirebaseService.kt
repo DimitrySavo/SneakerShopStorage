@@ -1,0 +1,38 @@
+package com.example.sneakershopstorage.model.services
+
+import android.util.Log
+import com.example.sneakershopstorage.model.Order
+import com.example.sneakershopstorage.model.Shoe
+import com.example.sneakershopstorage.utils.ErrorsMessages
+import com.example.sneakershopstorage.utils.FunctionResult
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.toObject
+import com.google.firebase.firestore.toObjects
+import kotlinx.coroutines.tasks.await
+
+class FirebaseService {
+    private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
+
+    suspend fun getShoeById(shoeId: String): FunctionResult<Shoe> {
+        val shoeSnapshot = db.collection("Shoes").document(shoeId).get().await()
+
+        Log.i("Firebase service", "Shoe document snapshot is = $shoeSnapshot")
+
+        val shoe = shoeSnapshot.toObject<Shoe>()?.apply {
+            getPriceAndStock()
+        } ?: return FunctionResult.Error(ErrorsMessages.SHOE_NOT_FOUND)
+
+        return FunctionResult.Success(shoe)
+    }
+
+    suspend fun getUserOrders(userId: String): FunctionResult<List<Order>> {
+        return if (db.collection("users").document(userId).get().await().exists()) {
+            val ordersSnapshot =
+                db.collection("users").document(userId).collection("Orders").get().await()
+            val orders = ordersSnapshot.toObjects<Order>()
+            FunctionResult.Success(orders)
+        } else {
+            FunctionResult.Error(ErrorsMessages.USER_NOT_FOUND)
+        }
+    }
+}
