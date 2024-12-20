@@ -7,5 +7,6 @@ data class ScanResult(
     companion object {
         const val EMPLOYEE_TYPE = "Employee"
         const val SHOE_TYPE = "Shoe"
+        const val USER_TYPE = "User"
     }
 }

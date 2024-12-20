@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 sealed class ScanData() {
     data class EmployeeData(val employee: Employee) : ScanData()
     data class ShoeData(val shoe: ShoeScanStructure) : ScanData()
-    data class UserData(val orders: String) : ScanData()
+    data class UserData(val userId: String) : ScanData()
 }
 
 class ScanDataBus() {
@@ -34,6 +34,11 @@ class ScanDataBus() {
                 Log.i("handleScanResultData", "Get into handleScanResultData function employee type")
                 val employee = Gson().fromJson(scanResult.content, Employee::class.java)
                 _scanResult.emit(ScanData.EmployeeData(employee))
+            }
+            ScanResult.USER_TYPE -> {
+                Log.i("handleScanResultData", "Get into handleScanResultData function user type")
+                val userId = scanResult.content
+                _scanResult.emit(ScanData.UserData(userId))
             }
             else -> {
                 Log.e("Scan result", "Unknown type")

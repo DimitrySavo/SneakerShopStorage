@@ -12,9 +12,7 @@ import org.koin.dsl.module
 val module = module {
     single { FirebaseService() }
     single { ScanDataBus() }
-    scope<MainActivity>{
-        viewModel { ShoeViewModel(get(), get()) }
-        viewModel { EmployeeViewModel(get()) }
-        viewModel { UserOrdersViewModel(get()) }
-    }
+    viewModel { ShoeViewModel(get(), get()) }
+    viewModel { EmployeeViewModel(get()) }
+    viewModel { UserOrdersViewModel(get(), get()) }
 }

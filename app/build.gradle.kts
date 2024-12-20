@@ -81,6 +81,9 @@ dependencies {
     // Coil implementation
     implementation(libs.coil.compose)
 
+    // pager indicators
+    implementation(libs.accompanist.pager.indicators)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

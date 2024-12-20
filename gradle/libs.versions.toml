@@ -17,6 +17,7 @@ navigationCompose = "2.8.4"
 converterGson = "2.11.0"
 koin-bom = "4.0.0"
 materialIconsExtended = "1.6.8"
+accompanistPagerIndicators = "0.30.1"
 
 
 [libraries]
@@ -50,6 +51,7 @@ firebase-firestore-ktx = { module = "com.google.firebase:firebase-firestore-ktx"
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin-bom" }
 firebase-storage-ktx = { module = "com.google.firebase:firebase-storage-ktx", version.ref = "firebaseStorageKtx" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
+accompanist-pager-indicators = { module = "com.google.accompanist:accompanist-pager-indicators", version.ref = "accompanistPagerIndicators" }
 
 
 [plugins]

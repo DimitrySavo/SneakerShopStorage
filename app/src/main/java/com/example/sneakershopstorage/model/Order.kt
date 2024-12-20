@@ -1,11 +1,14 @@
 package com.example.sneakershopstorage.model
 
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.DocumentId
+import com.google.firebase.firestore.PropertyName
 
 data class Order(
-    val Comment : String? = null,
-    val order: List<OrderItem>? = null,
-    val OrderDate: Timestamp? = null
+    @DocumentId val id: String,
+    @PropertyName("Comment") val comment : String? = null,
+    @PropertyName("order") val order: List<OrderItem>? = null,
+    @PropertyName("OrderDate") val orderDate: Timestamp? = null
 ) {
     data class OrderItem(
         val quantity: Long,

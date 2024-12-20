@@ -37,6 +37,7 @@ import com.example.sneakershopstorage.utils.Routes
 import com.example.sneakershopstorage.utils.ScannerHelper
 import com.example.sneakershopstorage.utils.ScanDataBus
 import com.example.sneakershopstorage.viewmodels.ShoeViewModel
+import com.example.sneakershopstorage.viewmodels.UserOrdersViewModel
 import com.google.gson.Gson
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.WriterException
@@ -50,7 +51,8 @@ import org.koin.androidx.viewmodel.ext.android.viewModel
 class MainActivity : ComponentActivity() {
     private val cryptoManager = CryptoManager()
     private val scanDataBus : ScanDataBus by inject()
-    val shoeViewModel : ShoeViewModel by viewModel()
+    private val shoeViewModel : ShoeViewModel by viewModel()
+    private val userViewModel: UserOrdersViewModel by viewModel()
     private lateinit var navController: NavHostController
 
     private val scanLauncher = registerForActivityResult(ScanContract()) { result ->
@@ -70,6 +72,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             navController = rememberNavController()
+            val init = shoeViewModel.shoe
 
             SneakerShopStorageTheme {
                 Column {
@@ -83,11 +86,11 @@ class MainActivity : ComponentActivity() {
                             startDestination = Routes.QRGENERATE
                         ) {
                             composable(route = Routes.SHOE) {
-                                ShoeScreen()
+                                ShoeScreen(viewModel= shoeViewModel)
                             }
 
                             composable(route = Routes.USERORDERS) {
-                                UserOrdersScreen()
+                                UserOrdersScreen(viewModel = userViewModel)
                             }
 
                             composable(route = Routes.QRGENERATE) {
@@ -103,8 +106,17 @@ class MainActivity : ComponentActivity() {
                                     )
                                 )
 
+                                val userWithOrders: String = Gson().toJson(
+                                    ScanResult(
+                                        type = ScanResult.USER_TYPE,
+                                        content = Gson().toJson(
+                                            "c7NKQmJPBzq83Bu9iFuc"
+                                        )
+                                    )
+                                )
+
                                 QRCodeScreen(
-                                    content = cryptoManager.encrypt(content)
+                                    content = cryptoManager.encrypt(userWithOrders)
                                 )
                             }
                         }
