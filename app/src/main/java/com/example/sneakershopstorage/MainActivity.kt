@@ -27,6 +27,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.sneakershopstorage.model.ScanResult
+import com.example.sneakershopstorage.model.ShoeScanStructure
 import com.example.sneakershopstorage.screens.ShoeScreen
 import com.example.sneakershopstorage.screens.UserOrdersScreen
 import com.example.sneakershopstorage.ui.theme.SneakerShopStorageTheme
@@ -34,17 +36,21 @@ import com.example.sneakershopstorage.utils.CryptoManager
 import com.example.sneakershopstorage.utils.Routes
 import com.example.sneakershopstorage.utils.ScannerHelper
 import com.example.sneakershopstorage.utils.ScanDataBus
+import com.example.sneakershopstorage.viewmodels.ShoeViewModel
+import com.google.gson.Gson
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.WriterException
 import com.google.zxing.common.BitMatrix
 import com.google.zxing.qrcode.QRCodeWriter
 import com.journeyapps.barcodescanner.ScanContract
 import org.koin.android.ext.android.inject
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class MainActivity : ComponentActivity() {
     private val cryptoManager = CryptoManager()
     private val scanDataBus : ScanDataBus by inject()
+    val shoeViewModel : ShoeViewModel by viewModel()
     private lateinit var navController: NavHostController
 
     private val scanLauncher = registerForActivityResult(ScanContract()) { result ->
@@ -67,7 +73,6 @@ class MainActivity : ComponentActivity() {
 
             SneakerShopStorageTheme {
                 Column {
-
                     Surface(
                         modifier = Modifier
                             .weight(10f)
@@ -75,18 +80,32 @@ class MainActivity : ComponentActivity() {
                     ) {
                         NavHost(
                             navController = navController,
-                            startDestination = Routes.SCAN
+                            startDestination = Routes.QRGENERATE
                         ) {
-                            composable(route = Routes.SCAN) {
-                                scan()
-                            }
-
                             composable(route = Routes.SHOE) {
                                 ShoeScreen()
                             }
 
                             composable(route = Routes.USERORDERS) {
                                 UserOrdersScreen()
+                            }
+
+                            composable(route = Routes.QRGENERATE) {
+                                val content: String = Gson().toJson(
+                                    ScanResult(
+                                        type = ScanResult.SHOE_TYPE,
+                                        content = Gson().toJson(
+                                            ShoeScanStructure(
+                                                shoeId = "ET96Bi8yKUJzOEGHCCCI",
+                                                shoeSize = "size-10"
+                                            )
+                                        )
+                                    )
+                                )
+
+                                QRCodeScreen(
+                                    content = cryptoManager.encrypt(content)
+                                )
                             }
                         }
                     }
@@ -99,7 +118,7 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier
                                 .weight(1f),
                             onClick = {
-
+                                navController.navigate(Routes.USERORDERS)
                             }
                         ) {
                             Icon(
@@ -112,7 +131,7 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier
                                 .weight(1f),
                             onClick = {
-
+                                scan()
                             }
                         ) {
                             Icon(
@@ -125,7 +144,7 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier
                                 .weight(1f),
                             onClick = {
-
+                                navController.navigate(Routes.SHOE)
                             }
                         ) {
                             Icon(

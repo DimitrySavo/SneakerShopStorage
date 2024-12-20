@@ -1,5 +1,6 @@
 package com.example.sneakershopstorage.modules
 
+import com.example.sneakershopstorage.MainActivity
 import com.example.sneakershopstorage.model.services.FirebaseService
 import com.example.sneakershopstorage.viewmodels.EmployeeViewModel
 import com.example.sneakershopstorage.utils.ScanDataBus
@@ -11,7 +12,9 @@ import org.koin.dsl.module
 val module = module {
     single { FirebaseService() }
     single { ScanDataBus() }
-    viewModel { ShoeViewModel(get(), get()) }
-    viewModel { EmployeeViewModel(get()) }
-    viewModel { UserOrdersViewModel(get()) }
+    scope<MainActivity>{
+        viewModel { ShoeViewModel(get(), get()) }
+        viewModel { EmployeeViewModel(get()) }
+        viewModel { UserOrdersViewModel(get()) }
+    }
 }

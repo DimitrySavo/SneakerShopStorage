@@ -13,15 +13,16 @@ import kotlinx.coroutines.tasks.await
 class FirebaseService {
     private val db: FirebaseFirestore = FirebaseFirestore.getInstance()
 
-    suspend fun getShoeById(shoeId: String): FunctionResult<Shoe> {
+    suspend fun getShoeByIdAndSize(shoeId: String, size: String): FunctionResult<Shoe> {
         val shoeSnapshot = db.collection("Shoes").document(shoeId).get().await()
 
         Log.i("Firebase service", "Shoe document snapshot is = $shoeSnapshot")
 
         val shoe = shoeSnapshot.toObject<Shoe>()?.apply {
-            getPriceAndStock()
+            getPriceAndStock(size)
         } ?: return FunctionResult.Error(ErrorsMessages.SHOE_NOT_FOUND)
 
+        Log.i("getShoeByIdAndSize", "Get shoe = $shoe")
         return FunctionResult.Success(shoe)
     }
 

@@ -17,7 +17,7 @@ data class Shoe(
     @PropertyName("imageCollectionUrl") val imageCollectionUrl: String,
     @PropertyName("modelName") val modelName: String,
     @PropertyName("tags") val tags: List<String>,
-    val sizes: Map<String, Size>,
+    var sizes: Map<String, Size>,
     var price: Double = 0.0,
     var inStock: Boolean = false
 ){
@@ -40,6 +40,18 @@ data class Shoe(
             this.inStock = true
         } else {
             this.price = this.sizes.values.first().price
+        }
+    }
+
+    fun getPriceAndStock(size: String) {
+        this.sizes[size]?.let {
+            if(it.inStock.values.sum() > 0) {
+                this.inStock = true
+            }
+            this.price = it.price
+            this.sizes = mapOf(size to it)
+        } ?: run {
+            this.sizes = emptyMap()
         }
     }
 }
