@@ -3,6 +3,7 @@ package com.example.sneakershopstorage.utils
 import android.util.Log
 import com.example.sneakershopstorage.model.Employee
 import com.example.sneakershopstorage.model.ScanResult
+import com.example.sneakershopstorage.model.ShoeScanStructure
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -13,7 +14,7 @@ import kotlinx.coroutines.launch
 
 sealed class ScanData() {
     data class EmployeeData(val employee: Employee) : ScanData()
-    data class ShoeData(val shoe: String) : ScanData()
+    data class ShoeData(val shoe: ShoeScanStructure) : ScanData()
     data class UserData(val orders: String) : ScanData()
 }
 
@@ -26,8 +27,8 @@ class ScanDataBus() {
         when(scanResult.type) {
             ScanResult.SHOE_TYPE -> {
                 Log.i("handleScanResultData", "Get into handleScanResultData function shoe type")
-                val shoeId = scanResult.content
-                _scanResult.emit(ScanData.ShoeData(shoeId))
+                val shoeScanData = Gson().fromJson(scanResult.content, ShoeScanStructure::class.java)
+                _scanResult.emit(ScanData.ShoeData(shoeScanData))
             }
             ScanResult.EMPLOYEE_TYPE -> {
                 Log.i("handleScanResultData", "Get into handleScanResultData function employee type")

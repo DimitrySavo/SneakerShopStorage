@@ -20,9 +20,10 @@ class ShoeViewModel(
         Log.d("ShoeViewModel", "create an shoe viewModel")
         viewModelScope.launch {
             scanDataBus.scanResult.collect { scanData ->
+                Log.i("ScanDataBus", " Value emmited and collected")
                 when(scanData) {
                     is ScanData.ShoeData -> {
-                        when(val result = firebaseService.getShoeById(scanData.shoe)) {
+                        when(val result = firebaseService.getShoeByIdAndSize(scanData.shoe.shoeId, scanData.shoe.shoeSize)) {
                             is FunctionResult.Success -> _shoe.value = result.data
                             is FunctionResult.Error -> Log.e("ShoeViewModel", result.message)
                         }
