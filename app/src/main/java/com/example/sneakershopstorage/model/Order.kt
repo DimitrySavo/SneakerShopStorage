@@ -7,7 +7,7 @@ import com.google.firebase.firestore.PropertyName
 data class Order(
     @DocumentId val id: String,
     @PropertyName("Comment") val comment : String? = null,
-    @PropertyName("order") val order: List<OrderItem>? = null,
+    @PropertyName("Order") val order: List<OrderItem>? = null,
     @PropertyName("OrderDate") val orderDate: Timestamp? = null
 ) {
     constructor() : this (
@@ -15,8 +15,10 @@ data class Order(
     )
 
     data class OrderItem(
-        val quantity: Long,
-        val shoeRef: String,
-        val size: String
+        val shoeRef: String? = null,
+        var modelName: String? = null,
+        val quantity: Long? = null,
+        val size: String? = null,
+        var status: String? = null
     )
 }

@@ -19,21 +19,29 @@ import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.sneakershopstorage.model.Employee
 import com.example.sneakershopstorage.model.ScanResult
 import com.example.sneakershopstorage.model.ShoeScanStructure
+import com.example.sneakershopstorage.modules.CurrentEmployee
 import com.example.sneakershopstorage.screens.ShoeScreen
 import com.example.sneakershopstorage.screens.UserOrdersScreen
 import com.example.sneakershopstorage.ui.theme.SneakerShopStorageTheme
 import com.example.sneakershopstorage.utils.CryptoManager
 import com.example.sneakershopstorage.utils.Routes
+import com.example.sneakershopstorage.utils.ScanData
 import com.example.sneakershopstorage.utils.ScannerHelper
 import com.example.sneakershopstorage.utils.ScanDataBus
 import com.example.sneakershopstorage.viewmodels.ShoeViewModel
@@ -44,15 +52,18 @@ import com.google.zxing.WriterException
 import com.google.zxing.common.BitMatrix
 import com.google.zxing.qrcode.QRCodeWriter
 import com.journeyapps.barcodescanner.ScanContract
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
+import org.koin.core.parameter.parametersOf
 
 
 class MainActivity : ComponentActivity() {
     private val cryptoManager = CryptoManager()
+    private val employee : CurrentEmployee by inject()
     private val scanDataBus : ScanDataBus by inject()
     private val shoeViewModel : ShoeViewModel by viewModel()
-    private val userViewModel: UserOrdersViewModel by viewModel()
+    private val userViewModel: UserOrdersViewModel by viewModel { parametersOf(::scan) }
     private lateinit var navController: NavHostController
 
     private val scanLauncher = registerForActivityResult(ScanContract()) { result ->
@@ -70,8 +81,25 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        lifecycleScope.launch {
+            scanDataBus.scanResult.collect { scanData ->
+                when(scanData) {
+                    is ScanData.EmployeeData -> {
+                        employee.employee = scanData.employee
+                    }
+                    else -> {
+                        Log.i("Scan collecting for mainActivity", "Not employee type scanned")
+                    }
+                }
+            }
+        }
+
         setContent {
             navController = rememberNavController()
+            val currentEmployee: CurrentEmployee by remember {
+                mutableStateOf(employee)
+            }
+
             val init = shoeViewModel.shoe
             val initUser = userViewModel.userOrders
 
@@ -84,8 +112,19 @@ class MainActivity : ComponentActivity() {
                     ) {
                         NavHost(
                             navController = navController,
-                            startDestination = Routes.QRGENERATE
+                            startDestination = Routes.AUTHORIZE
                         ) {
+                            composable(route = Routes.AUTHORIZE) {
+                                if(currentEmployee.employee != null) {
+                                    navController.navigate(Routes.QRGENERATE)
+                                    navController.clearBackStack(Routes.AUTHORIZE)
+                                } else {
+                                    Text(
+                                        text = "You need authorize as employee before start working"
+                                    )
+                                }
+                            }
+
                             composable(route = Routes.SHOE) {
                                 ShoeScreen(viewModel= shoeViewModel)
                             }
@@ -116,8 +155,34 @@ class MainActivity : ComponentActivity() {
                                     )
                                 )
 
+                                val employeeFromStorageOne: String = Gson().toJson(
+                                    ScanResult(
+                                        type = ScanResult.EMPLOYEE_TYPE,
+                                        content = Gson().toJson(
+                                            Employee(
+                                                "2",
+                                                "Edward",
+                                                "Elrick",
+                                                "storageOne")
+                                        )
+                                    )
+                                )
+
+                                val employeeFromStorageTwo: String = Gson().toJson(
+                                    ScanResult(
+                                        type = ScanResult.EMPLOYEE_TYPE,
+                                        content = Gson().toJson(
+                                            Employee(
+                                                "3",
+                                                "Alfons",
+                                                "Elrick",
+                                                "storageTwo")
+                                        )
+                                    )
+                                )
+
                                 QRCodeScreen(
-                                    content = cryptoManager.encrypt(userWithOrders)
+                                    content = cryptoManager.encrypt(employeeFromStorageTwo)
                                 )
                             }
                         }

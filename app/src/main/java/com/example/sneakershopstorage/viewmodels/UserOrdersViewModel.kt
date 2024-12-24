@@ -5,17 +5,27 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.sneakershopstorage.model.Order
 import com.example.sneakershopstorage.model.services.FirebaseService
+import com.example.sneakershopstorage.modules.ReturningState
 import com.example.sneakershopstorage.utils.FunctionResult
 import com.example.sneakershopstorage.utils.ScanData
 import com.example.sneakershopstorage.utils.ScanDataBus
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class UserOrdersViewModel(
-    scanDataBus: ScanDataBus,
-    firebaseService: FirebaseService
+    private val scanDataBus: ScanDataBus,
+    private val firebaseService: FirebaseService,
+    private val isReturningState: ReturningState,
+    private val scanFunction: () -> Unit
 ) : ViewModel() {
+    private val _userOrders = MutableStateFlow<List<Order>>(emptyList())
+    val userOrders = _userOrders.asStateFlow()
+
+    private val _userId = MutableStateFlow<String?>(null)
+    val userId = _userId.asStateFlow()
+
     init {
         Log.d("UserOrders viewModel", "create an userOrders viewModel")
         viewModelScope.launch {
@@ -25,6 +35,7 @@ class UserOrdersViewModel(
                         when(val result = firebaseService.getUserOrders(scanData.userId)) {
                             is FunctionResult.Success -> {
                                 _userOrders.value = result.data
+                                _userId.value = scanData.userId
                                 Log.d("ScanData", "User orders = ${result.data}")
                             }
                             is FunctionResult.Error -> {
@@ -38,6 +49,16 @@ class UserOrdersViewModel(
         }
     }
 
-    private val _userOrders = MutableStateFlow<List<Order>>(emptyList())
-    val userOrders = _userOrders.asStateFlow()
+    fun returnShoe(shoeId: String, orderId: String) = viewModelScope.launch {
+        isReturningState.isReturning = true
+        scanFunction()
+        val firstScan = scanDataBus.scanResult.first()
+
+        if (firstScan is ScanData.ShoeData && firstScan.shoe.shoeId == shoeId) {
+            firebaseService.returnShoe(shoeId, orderId, _userId.value ?: "")
+        } else {
+            Log.i("ReturnShoe", "Wrong shoe scanned. Exiting.")
+        }
+        isReturningState.isReturning = false
+    }
 }
