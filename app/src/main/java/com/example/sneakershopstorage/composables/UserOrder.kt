@@ -1,5 +1,6 @@
 package com.example.sneakershopstorage.composables
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
@@ -10,6 +11,8 @@ import com.example.sneakershopstorage.model.Order
 
 @Composable
 fun UserOrder(modifier: Modifier = Modifier, order: Order) {
+    Log.i("UserOrderCard", "$order")
+
     Column(modifier = Modifier
         .fillMaxWidth()
     ) {

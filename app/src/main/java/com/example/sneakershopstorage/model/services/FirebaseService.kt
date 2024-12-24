@@ -27,9 +27,13 @@ class FirebaseService {
     }
 
     suspend fun getUserOrders(userId: String): FunctionResult<List<Order>> {
-        return if (db.collection("users").document(userId).get().await().exists()) {
+        val trimmedUserId = userId.replace("\"", "")
+        Log.i("getUserOrders", "User id is $trimmedUserId")
+        val userSnapshot = db.collection("users").document(trimmedUserId).get().await()
+        Log.i("getUserOrders", "User snapshot is $userSnapshot")
+        return if (userSnapshot.exists()) {
             val ordersSnapshot =
-                db.collection("users").document(userId).collection("Orders").get().await()
+                db.collection("users").document(trimmedUserId).collection("Orders").get().await()
             val orders = ordersSnapshot.toObjects<Order>()
             FunctionResult.Success(orders)
         } else {

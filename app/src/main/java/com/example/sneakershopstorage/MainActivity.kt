@@ -73,6 +73,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             navController = rememberNavController()
             val init = shoeViewModel.shoe
+            val initUser = userViewModel.userOrders
 
             SneakerShopStorageTheme {
                 Column {
@@ -100,7 +101,7 @@ class MainActivity : ComponentActivity() {
                                         content = Gson().toJson(
                                             ShoeScanStructure(
                                                 shoeId = "ET96Bi8yKUJzOEGHCCCI",
-                                                shoeSize = "size-10"
+                                                shoeSize = "size-20"
                                             )
                                         )
                                     )
@@ -110,7 +111,7 @@ class MainActivity : ComponentActivity() {
                                     ScanResult(
                                         type = ScanResult.USER_TYPE,
                                         content = Gson().toJson(
-                                            "c7NKQmJPBzq83Bu9iFuc"
+                                            "QZmJXQy5L7cDvv8XlnO29W9eQ2F3"
                                         )
                                     )
                                 )

@@ -10,6 +10,10 @@ data class Order(
     @PropertyName("order") val order: List<OrderItem>? = null,
     @PropertyName("OrderDate") val orderDate: Timestamp? = null
 ) {
+    constructor() : this (
+        ""
+    )
+
     data class OrderItem(
         val quantity: Long,
         val shoeRef: String,

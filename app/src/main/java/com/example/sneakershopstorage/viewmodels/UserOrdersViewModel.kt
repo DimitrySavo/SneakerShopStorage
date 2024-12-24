@@ -25,6 +25,7 @@ class UserOrdersViewModel(
                         when(val result = firebaseService.getUserOrders(scanData.userId)) {
                             is FunctionResult.Success -> {
                                 _userOrders.value = result.data
+                                Log.d("ScanData", "User orders = ${result.data}")
                             }
                             is FunctionResult.Error -> {
                                 Log.e("Getting order", "Error: ${result.message}")

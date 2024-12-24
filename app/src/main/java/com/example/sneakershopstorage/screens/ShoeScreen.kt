@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
@@ -57,18 +58,23 @@ fun ShoeScreen(modifier: Modifier = Modifier, viewModel: ShoeViewModel) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight()
+                .fillMaxHeight(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 8.dp, start = 16.dp, bottom = 8.dp)
+                    .fillMaxHeight(0.1f)
                     .shadow(elevation = 4.dp)
+                    .background(color = Color.White),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
                     text = it.modelName,
                     overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.headlineMedium
+                    style = MaterialTheme.typography.headlineMedium,
+                    modifier = Modifier
+                        .padding(8.dp)
                 )
             }
             Column(
@@ -78,10 +84,11 @@ fun ShoeScreen(modifier: Modifier = Modifier, viewModel: ShoeViewModel) {
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 if (imageUrls.isNotEmpty()) {
-                    Box(
+                    Column(
                         modifier = modifier
                             .fillMaxWidth()
-                            .weight(0.4f)
+                            .fillMaxHeight(0.4f),
+                        verticalArrangement = Arrangement.Center
                     ) {
                         HorizontalPager (
                             state = pagerState,
@@ -89,7 +96,9 @@ fun ShoeScreen(modifier: Modifier = Modifier, viewModel: ShoeViewModel) {
                                 .fillMaxWidth()
                         ) { page ->
                             Box (
-                                modifier = Modifier.fillMaxSize(),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(8f),
                                 contentAlignment = Alignment.Center
                             ) {
                                 AsyncImage(
@@ -103,7 +112,7 @@ fun ShoeScreen(modifier: Modifier = Modifier, viewModel: ShoeViewModel) {
 
                         Row(
                             modifier = Modifier
-                                .align(Alignment.BottomCenter)
+                                .weight(2f)
                                 .padding(bottom = 16.dp),
                             horizontalArrangement = Arrangement.Center
                         ) {
@@ -125,8 +134,10 @@ fun ShoeScreen(modifier: Modifier = Modifier, viewModel: ShoeViewModel) {
                 }
 
                 Text(
-                    text = "Price:" + it.price.toString(),
-                    style = MaterialTheme.typography.bodyLarge
+                    text = "Price: " + it.price.toString(),
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier
+                        .padding(bottom = 20.dp)
                 )
 
                 Text(
@@ -136,14 +147,16 @@ fun ShoeScreen(modifier: Modifier = Modifier, viewModel: ShoeViewModel) {
 
                 Text(
                     text = it.description,
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier
-                        .padding(start = 8.dp)
+                        .padding(start = 16.dp, bottom = 20.dp)
                 )
 
                 Text(
                     text = "In stock:",
-                    style = MaterialTheme.typography.bodyLarge
+                    style = MaterialTheme.typography.bodyLarge,
+                    modifier = Modifier
+                        .padding(bottom = 20.dp)
                 )
                 Column(
                     modifier = Modifier
@@ -156,13 +169,24 @@ fun ShoeScreen(modifier: Modifier = Modifier, viewModel: ShoeViewModel) {
                             size.inStock.forEach { inStockInfo ->
                                 Text(
                                     text = inStockInfo.key + " : " + inStockInfo.value.toString(),
-                                    style = MaterialTheme.typography.bodyMedium
+                                    style = MaterialTheme.typography.bodyLarge
                                 )
                             }
                         }
+                    } else {
+                        Text(
+                            text = "Shoe is out of stock"
+                        )
                     }
                 }
             }
         }
+    } ?: run {
+        Text(
+            text = "Scan QR to see shoe information.",
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxSize()
+        )
     }
 }
