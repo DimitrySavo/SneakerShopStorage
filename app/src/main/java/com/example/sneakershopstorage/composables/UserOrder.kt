@@ -93,7 +93,6 @@ fun OrderDetailsDialog(
         order.order
             ?.flatMap { item ->
                 val qty = item.quantity ?: 0
-                // Размножаем элемент qty раз
                 List(qty.toInt()) { item }
             }
             .orEmpty()
@@ -109,15 +108,17 @@ fun OrderDetailsDialog(
                 items(items = itemsList) { item ->
                     // Каждая «строка»
                     // Можно обернуть в Row, если хотите что-то более сложное
-                    Text(
-                        text = item.modelName ?: "Unknown model",
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable {
-                                onItemClicked(item)
-                            }
-                            .padding(vertical = 8.dp)
-                    )
+                    if(item.status != OrderItemStatuses.RETURNED){
+                        Text(
+                            text = item.modelName ?: "Unknown model",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable {
+                                    onItemClicked(item)
+                                }
+                                .padding(vertical = 8.dp)
+                        )
+                    }
                 }
             }
         },
@@ -127,4 +128,9 @@ fun OrderDetailsDialog(
             }
         }
     )
+}
+
+
+object OrderItemStatuses {
+    const val RETURNED = "returned"
 }

@@ -6,3 +6,4 @@ data class Employee(
     var surname: String,
     var storage: String
 )
+
