@@ -204,11 +204,15 @@ fun ShoeScreen(modifier: Modifier = Modifier, viewModel: ShoeViewModel) {
             }
         }
     } ?: run {
-        Text(
-            text = "Scan QR to see shoe information.",
-            textAlign = TextAlign.Center,
+        Column(
             modifier = Modifier
                 .fillMaxSize()
-        )
+
+        ) {
+            Text(
+                text = "Scan QR to see shoe information.",
+                textAlign = TextAlign.Center
+            )
+        }
     }
 }
