@@ -153,7 +153,7 @@ class MainActivity : ComponentActivity() {
 
                                     Button(
                                         onClick = {
-                                            scan()
+                                            scan() //to commit
                                         }
                                     ) {
                                         Text(
