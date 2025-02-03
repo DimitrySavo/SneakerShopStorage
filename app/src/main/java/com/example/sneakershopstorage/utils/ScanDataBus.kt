@@ -22,7 +22,7 @@ class ScanDataBus() {
     private val _scanResult = MutableSharedFlow<ScanData>()
     val scanResult = _scanResult.asSharedFlow()
 
-    fun handleScanResultData(scanResult: ScanResult)= CoroutineScope(Dispatchers.IO).launch {
+    fun handleScanResultData(scanResult: ScanResult) = CoroutineScope(Dispatchers.IO).launch {
         Log.i("handleScanResultData", "Get into handleScanResultData function")
         when(scanResult.type) {
             ScanResult.SHOE_TYPE -> {
